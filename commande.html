@@ -91,7 +91,13 @@ textarea{height:120px;resize:none;}
     </div>
 
     <form id="orderForm" method="POST" action="https://api.web3forms.com/submit">
-
+<form action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="89fce21d-3fe9-49cd-8334-3b563e38767a">
+  <input type="text" name="name" required>
+  <input type="email" name="email" required>
+  <textarea name="message" required></textarea>
+  <button type="submit">Submit Form</button>
+</form>
         <!-- Web3Forms -->
         <input type="hidden" name="access_key" value="85964db9-6071-47e4-a3bb-cf54c9de716c">
         <input type="hidden" name="Commande_ID" id="order-id">
@@ -190,5 +196,6 @@ document.getElementById("order-total").value = total + "€";
 
 </body>
 </html>
+
 
 
