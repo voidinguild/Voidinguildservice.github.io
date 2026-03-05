@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Commande – Voiding Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+    --bg:#f5f5f7; --card:#ffffff; --text:#1d1d1f; --sub:#6e6e73;
+    --accent1:#6a00ff; --accent2:#ff4fd8; --hover1:#7d2dff; --hover2:#ff6ae6;
+    --danger:#ff3b30; --success:#34c759;
+}
+
+body{
+    margin:0;
+    font-family:"Inter",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+.card{
+    background:#fff;
+    padding:40px;
+    border-radius:24px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.06);
+    margin-bottom:40px;
+}
+
+h1{font-size:36px;margin-bottom:10px;}
+h2{font-size:28px;margin-bottom:10px;}
+h3{font-size:22px;margin-bottom:10px;}
+p{color:var(--sub);}
+
+input,textarea,select{
+    width:100%;
+    padding:14px;
+    border-radius:12px;
+    border:1px solid #d2d2d7;
+    background:#fafafa;
+    font-size:15px;
+    margin-bottom:18px;
+}
+
+textarea{height:120px;resize:none;}
+
+.btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    color:#fff;
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.2s;
+}
+.btn:hover{
+    background:linear-gradient(135deg,var(--hover1),var(--hover2));
+}
+
+.summary-box{
+    background:#fafafa;
+    padding:20px;
+    border-radius:16px;
+    margin-bottom:20px;
+}
+
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Finaliser la commande</h1>
+    <p>Merci pour ta confiance ! Remplis les informations ci‑dessous.</p>
+
+    <div class="card">
+        <h2>Résumé de la commande</h2>
+        <div id="summary" class="summary-box"></div>
+        <h3>Total : <span id="total"></span></h3>
+    </div>
+
+    <form id="orderForm" method="POST" action="https://api.web3forms.com/submit">
+
+        <!-- Web3Forms -->
+        <input type="hidden" name="access_key" value="TA_CLE_WEB3FORMS_ICI">
+        <input type="hidden" name="Commande_ID" id="order-id">
+        <input type="hidden" name="Résumé" id="order-summary">
+        <input type="hidden" name="Total" id="order-total">
+
+        <div class="card">
+            <h2>Informations client</h2>
+
+            <input type="text" name="Nom" placeholder="Ton nom" required>
+            <input type="text" name="Discord" placeholder="Ton pseudo Discord (ex: voidingstudio)" required>
+            <textarea name="Notes" placeholder="Notes supplémentaires (optionnel)"></textarea>
+        </div>
+
+        <!-- MINIATURE -->
+        <div id="miniature-block" class="card hidden">
+            <h2>Miniature YouTube</h2>
+            <input type="text" name="Miniature_Titre" placeholder="Titre de la vidéo">
+            <input type="text" name="Miniature_Style" placeholder="Style souhaité (couleurs, ambiance...)">
+            <textarea name="Miniature_Description" placeholder="Détails supplémentaires"></textarea>
+        </div>
+
+        <!-- MONTAGE -->
+        <div id="montage-block" class="card hidden">
+            <h2>Montage Vidéo</h2>
+            <input type="text" name="Montage_Durée" placeholder="Durée de la vidéo">
+            <input type="text" name="Montage_Style" placeholder="Style (dynamique, chill, gaming...)">
+            <textarea name="Montage_Infos" placeholder="Détails du montage (cuts, musique, rythme...)"></textarea>
+        </div>
+
+        <!-- PP DISCORD -->
+        <div id="pp-block" class="card hidden">
+            <h2>PP Discord</h2>
+            <input type="text" name="PP_Style" placeholder="Style (couleurs, thème...)">
+            <textarea name="PP_Infos" placeholder="Détails supplémentaires"></textarea>
+        </div>
+
+        <!-- SERVEUR DISCORD -->
+        <div id="discord-block" class="card hidden">
+            <h2>Création Serveur Discord</h2>
+            <input type="text" name="Serveur_Nom" placeholder="Nom du serveur">
+            <input type="text" name="Serveur_Thème" placeholder="Thème (gaming, RP, communauté...)">
+            <input type="text" name="Serveur_Style" placeholder="Style (minimaliste, gaming, pro...)">
+            <input type="number" name="Serveur_Salons" placeholder="Nombre de salons souhaités">
+            <input type="text" name="Serveur_Bots" placeholder="Bots à installer">
+            <textarea name="Serveur_Permissions" placeholder="Permissions spéciales"></textarea>
+            <textarea name="Serveur_Références" placeholder="Exemples de serveurs que tu aimes"></textarea>
+        </div>
+
+        <button class="btn" type="submit">Envoyer la commande</button>
+    </form>
+
+</div>
+
+<script>
+// —————————————————————————————
+// RÉCUPÉRATION DU PANIER
+// —————————————————————————————
+const params = new URLSearchParams(window.location.search);
+const cart = JSON.parse(decodeURIComponent(params.get("cart") || "{}"));
+
+// —————————————————————————————
+// AFFICHAGE DES BLOCS SELON LE PANIER
+// —————————————————————————————
+if (cart.miniature) document.getElementById("miniature-block").classList.remove("hidden");
+if (cart.montage) document.getElementById("montage-block").classList.remove("hidden");
+if (cart.pp) document.getElementById("pp-block").classList.remove("hidden");
+if (cart.discord) document.getElementById("discord-block").classList.remove("hidden");
+
+// —————————————————————————————
+// RÉSUMÉ + TOTAL
+// —————————————————————————————
+let summaryText = "";
+let total = 0;
+
+Object.values(cart).forEach(item => {
+    summaryText += `${item.name} × ${item.qty}\n`;
+    if (item.price !== null) total += item.price * item.qty;
+});
+
+document.getElementById("summary").innerText = summaryText;
+document.getElementById("total").innerText = total + "€";
+
+// —————————————————————————————
+// ID DE COMMANDE
+// —————————————————————————————
+const orderID = "CMD-" + Math.floor(Math.random()*900000 + 100000);
+document.getElementById("order-id").value = orderID;
+
+// —————————————————————————————
+// HIDDEN FIELDS POUR LE MAIL
+// —————————————————————————————
+document.getElementById("order-summary").value = summaryText;
+document.getElementById("order-total").value = total + "€";
+</script>
+
+</body>
+</html>
